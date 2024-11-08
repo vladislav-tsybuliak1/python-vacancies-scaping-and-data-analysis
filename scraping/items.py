@@ -6,7 +6,10 @@
 import scrapy
 
 
-class ScrapingItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+class Vacancy(scrapy.Item):
+    title = scrapy.Field()
+    description = scrapy.Field()
+    company = scrapy.Field()
+    placing_date = scrapy.Field()
+    location = scrapy.Field()
+    salary = scrapy.Field()
