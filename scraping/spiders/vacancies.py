@@ -25,7 +25,7 @@ class VacanciesSpider(scrapy.Spider):
 
     custom_settings = {
         "FEEDS": {
-            "vacancies.csv": {
+            "data/vacancies.csv": {
                 "format": "csv",
                 "encoding": "utf-8",
                 "overwrite": True,
