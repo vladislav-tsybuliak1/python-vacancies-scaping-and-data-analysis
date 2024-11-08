@@ -1,10 +1,25 @@
+import time
+from typing import Iterable
+
 import scrapy
+from scrapy import Request
+from scrapy.http import Response, HtmlResponse, TextResponse
+from selenium import webdriver
+from selenium.common import (
+    TimeoutException,
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    ElementNotInteractableException
+)
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+
+from scraping.items import Vacancy
 
 
 class VacanciesSpider(scrapy.Spider):
     name = "vacancies"
     allowed_domains = ["jobs.dou.ua"]
-    start_urls = ["https://jobs.dou.ua/vacancies/?search=python"]
     start_url = "https://jobs.dou.ua/vacancies/?search=python"
     headers = {"User-Agent": "Mozilla/5.0"}
 
@@ -54,6 +69,46 @@ class VacanciesSpider(scrapy.Spider):
         )
         yield from self.parse(response)
 
+    def parse(self, response: Response, **kwargs) -> Iterable[Request]:
+        links = response.css(".l-vacancy .title .vt::attr(href)").getall()
+        self.log(f"Total vacancies amount: {len(links)}")
 
-    def parse(self, response):
-        pass
+        for url in response.css(".l-vacancy .title .vt::attr(href)").getall():
+            self.log(f"Found URL: {url}")
+            yield response.follow(
+                url=url,
+                headers=self.headers,
+                callback=self.parse_details
+            )
+
+    def parse_details(self, response: Response) -> Vacancy:
+        title = response.css(".l-vacancy .g-h2::text").get()
+
+        vacancy_section = response.css("div.b-typo.vacancy-section")
+        text_content = vacancy_section.xpath(".//text()").getall()
+        description = (
+            " ".join(text_content).replace("\xa0", " ").strip()
+        )
+
+        company = response.css(".b-compinfo .l-n > a::text").get()
+
+        placing_date = response.css("div.date::text").get().strip()
+
+        location = response.css(".place::text").get().strip()
+
+        try:
+            salary = (
+                response.css("span.salary::text").get()
+                .replace("\xa0", " ").strip()
+            )
+        except:
+            salary = None
+
+        return Vacancy(
+            title=title,
+            description=description,
+            company=company,
+            placing_date=placing_date,
+            location=location,
+            salary=salary
+        )
