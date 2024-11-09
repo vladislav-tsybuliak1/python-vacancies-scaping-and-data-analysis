@@ -9,6 +9,7 @@ import scrapy
 class Vacancy(scrapy.Item):
     title = scrapy.Field()
     description = scrapy.Field()
+    exp_level = scrapy.Field()
     company = scrapy.Field()
     placing_date = scrapy.Field()
     location = scrapy.Field()
