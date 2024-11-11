@@ -131,5 +131,6 @@ wcwidth==0.2.13
 webcolors==24.8.0
 webencodings==0.5.1
 websocket-client==1.8.0
+wordcloud==1.9.4
 wsproto==1.2.0
 zope.interface==7.1.1
